@@ -55,6 +55,10 @@ class CurrentWorkoutView: UIView, UITableViewDelegate, UITableViewDataSource {
     }
     
     // MARK: Work functions
+    
+    func resetCurrentWorkout() {
+        currentWorkoutsDictionary.removeAll()
+    }
 
     func setWorkout(workout: Workout){
         currentWorkout = workout
@@ -63,6 +67,30 @@ class CurrentWorkoutView: UIView, UITableViewDelegate, UITableViewDataSource {
         dateFormatter.dateFormat = "dd/MM/YY"
         self.date.text = dateFormatter.string(from: workout.date)
         
+        self.setsTableView.reloadData()
+    }
+    
+    func setWorkoutWithName(workout: String){
+        guard let workout = currentWorkoutsDictionary[workout] else {
+            setWorkout(workout: Workout.init(workoutName: workout, set: [], date: Date(), index: 0))
+            self.setsTableView.reloadData()
+            return
+        }
+        currentWorkout = workout
+        
+        self.workoutTitleLabel.text = currentWorkout?.workoutName
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/YY"
+        self.date.text = dateFormatter.string(from: currentWorkout!.date)
+        
+        self.setsTableView.reloadData()
+    }
+    
+    func addWorkoutSetToCurrentWorkout(workoutSet: WorkoutSet){
+        currentWorkout?.set.append(workoutSet)
+        
+        currentWorkoutsDictionary.updateValue(currentWorkout!, forKey: workoutSet.workoutName)
+
         self.setsTableView.reloadData()
         
     }
