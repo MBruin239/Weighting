@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CurrentWorkoutView: UIView, UITableViewDelegate, UITableViewDataSource {
+class CurrentWorkoutView: UIView {
     
     @IBOutlet var setsTableView: UITableView! { didSet { setsTableView.delegate = self; setsTableView.dataSource = self} }
     
@@ -16,46 +16,8 @@ class CurrentWorkoutView: UIView, UITableViewDelegate, UITableViewDataSource {
     
     public var currentWorkoutsDictionary = [String:Workout]()
     var currentWorkout: Workout?
-
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if (currentWorkout == nil) {
-            return 0;
-        }
-        return self.currentWorkout!.set.count
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 21
-    }
-    
-    // create a cell for each table view row
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        // create a new cell if needed or reuse an old one
-        var cell : UITableViewCell? = tableView.dequeueReusableCell(withIdentifier: "cell")
-            if cell == nil {
-                cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "cell")
-            }
-
-        if (self.currentWorkout?.set.count)! > 0 {
-            let set = currentWorkout!.set[indexPath.row]
-            let stringValue: String
-            stringValue = String(format: "[ %@ , %@ ]", set.reps, set.weight)
-
-            cell?.textLabel!.text = stringValue
-            }
-
-        return cell!
-    }
-    
-    // method to run when table view cell is tapped
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("You tapped cell number \(indexPath.row).")
-    }
-    
-    // MARK: Work functions
-    
+// MARK: Work functions
     func resetCurrentWorkout() {
         currentWorkoutsDictionary.removeAll()
     }
@@ -96,3 +58,44 @@ class CurrentWorkoutView: UIView, UITableViewDelegate, UITableViewDataSource {
     }
 
 }
+
+// MARK: Table Delegate functions
+extension CurrentWorkoutView: UITableViewDelegate, UITableViewDataSource {
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if (currentWorkout == nil) {
+            return 0;
+        }
+        return self.currentWorkout!.set.count
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 21
+    }
+    
+    // create a cell for each table view row
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        // create a new cell if needed or reuse an old one
+        var cell : UITableViewCell? = tableView.dequeueReusableCell(withIdentifier: "cell")
+            if cell == nil {
+                cell = UITableViewCell(style: UITableViewCell.CellStyle.default, reuseIdentifier: "cell")
+            }
+
+        if (self.currentWorkout?.set.count)! > 0 {
+            let set = currentWorkout!.set[indexPath.row]
+            let stringValue: String
+            stringValue = String(format: "[ %@ , %@ ]", set.reps, set.weight)
+
+            cell?.textLabel!.text = stringValue
+            }
+
+        return cell!
+    }
+    
+    // method to run when table view cell is tapped
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        print("You tapped cell number \(indexPath.row).")
+    }
+}
+

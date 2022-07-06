@@ -7,11 +7,13 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource{
+class ViewController: UIViewController {
     
     let userDefaults = UserDefaults.standard
 
     let cellReuseIdentifier = "cell"
+    let savedOldWorkoutsKey = "savedWorkouts"
+
     public var currentWorkoutIndex = 0
     
     @IBOutlet weak var workoutTextField: UITextField! { didSet { workoutTextField.delegate = self } }
@@ -28,7 +30,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     private var oldWorkoutsDictionary = [String:[Workout]]()
     private var oldWorkoutArray: [Workout] = []
     private var workoutNames: [String] = []
-    //var currentWorkout: Workout?
+    var currentWorkoutName: String?
 
     // MARK: View Controller functions
     override func viewDidLoad() {
@@ -38,19 +40,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.moveTheViewWithKeyboard()
         self.hideKeyboardWhenTappedAround()
 
-        getOldWorkouts(key: "savedWorkouts")
+        getOldWorkouts(key: savedOldWorkoutsKey)
 
         self.registerTableViewCells()
                 
-        addSetBtn.addTarget(self, action: #selector(addSetAction), for: .touchUpInside)
-        //finishWorkoutBtn.addTarget(self, action: #selector(finishWorkoutAction), for: .touchUpInside)
-
         workoutNames = [String](oldWorkoutsDictionary.keys)
         
         oldWorkoutArray = oldWorkoutsDictionary[self.workoutNames[0]]!
         
         self.currentWorkoutView.setWorkout(workout: Workout.init(workoutName: self.workoutNames[0], set: [], date: Date(), index: currentWorkoutIndex))
-
+        currentWorkoutName = self.workoutNames[0]
+        
         workoutTableView.reloadData()
         workoutPickerView.reloadAllComponents()
 
@@ -87,47 +87,35 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let workoutWeight = weightTextField.text!
         let workoutReps = repsTextField.text!
 
-        for name in workoutNames {
+        for i in 0..<workoutNames.count {
+            let name = workoutNames[i]
             if name.caseInsensitiveCompare(workoutName) == .orderedSame {
                 workoutName = name
+                movePickerViewToRow(row: i)
             }
         }
         
         let newSet = WorkoutSet.init(workoutName: workoutName, weight: workoutWeight, reps: workoutReps)
         currentWorkoutView.addWorkoutSetToCurrentWorkout(workoutSet: newSet)
         
-        let set = Set(oldWorkoutsDictionary.keys)
-        let union = set.union(currentWorkoutView.currentWorkoutsDictionary.keys)
-        workoutNames = Array(union)
-        
-       /* currentWorkoutView.setWorkout(workout: currentWorkout!)
-
-        currentWorkoutView.currentWorkout?.set.append(newSet)
-        currentWorkoutView.currentWorkoutsDictionary.updateValue(currentWorkoutView.currentWorkout!, forKey: workoutName)
-        
-        let set = Set(oldWorkoutsDictionary.keys)
-        let union = set.union(currentWorkoutView.currentWorkoutsDictionary.keys)
-
-        workoutNames = Array(union)
-        currentWorkout?.set.append(newSet)
-        currentWorkoutView.setWorkout(workout: currentWorkout!)
-                
-        oldWorkoutArray = oldWorkoutsDictionary[newSet.workoutName] ?? [Workout]()
-        if currentWorkout?.index == oldWorkoutArray.first?.index {
-            oldWorkoutArray.removeFirst()
+        if !workoutNames.contains(workoutName){
+            workoutNames.append(workoutName)
+            movePickerViewToRow(row: workoutNames.count-1)
         }
-        
-        oldWorkoutArray.insert(currentWorkout!, at: 0)
-        oldWorkoutsDictionary.updateValue(oldWorkoutArray, forKey: newSet.workoutName)
-        
-        workoutNames = [String](oldWorkoutsDictionary.keys)*/
         
         workoutTableView.reloadData()
         workoutPickerView.reloadAllComponents()
     }
     
+    func movePickerViewToRow(row: Int) {
+        workoutPickerView.reloadAllComponents()
+        self.workoutPickerView.selectRow(row, inComponent: 0, animated: false)
+        self.pickerView(self.workoutPickerView, didSelectRow: row, inComponent: 0)
+    }
+    
     @IBAction func finishWorkoutAction(sender: UIButton!) {
          print("Finish workout Button Clicked")
+        let workoutName = workoutTextField.text!
         
         for (key, val) in currentWorkoutView.currentWorkoutsDictionary {
             var array = oldWorkoutsDictionary[key] ?? [Workout]()
@@ -135,13 +123,32 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             oldWorkoutsDictionary.updateValue(array, forKey: key)
         }
         
-        saveOldWorkouts(key: "savedWorkouts")
         
         currentWorkoutView.resetCurrentWorkout()
-        self.currentWorkoutView.setWorkout(workout: Workout.init(workoutName: self.workoutNames[0], set: [], date: Date(), index: currentWorkoutIndex))
+        self.currentWorkoutView.setWorkout(workout: Workout.init(workoutName: workoutName, set: [], date: Date(), index: currentWorkoutIndex))
+        oldWorkoutArray = oldWorkoutsDictionary[workoutName] ?? []
+
+        self.workoutTableView.reloadData()
+        self.workoutPickerView.reloadAllComponents()
+        
+        saveOldWorkouts(key: savedOldWorkoutsKey)
+    }
+    
+    private func handleRemoveWorkout(index: Int) {
+        print("Remove workout: \(index)")
+        print(oldWorkoutArray[index])
+        
+        let oldWorkoutToRemove = oldWorkoutArray[index]
+        
+        oldWorkoutArray.remove(at: index)
+        oldWorkoutsDictionary.updateValue(oldWorkoutArray, forKey:currentWorkoutName ?? oldWorkoutToRemove.workoutName)
         
         self.workoutTableView.reloadData()
         self.workoutPickerView.reloadAllComponents()
+    }
+
+    private func handleEditWorkout(index: Int) {
+        print("Edit workout: \(index)")
     }
     
     override func didReceiveMemoryWarning() {
@@ -149,7 +156,41 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         // Dispose of any resources that can be recreated.
     }
     
-    // MARK: Picker View Delegate functions
+    func makeFakeWorkOutData() {
+         var workouts = [Workout].init()
+         
+         let workout = Workout.init(workoutName: "Bench Press", set: [WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10"), WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10"), WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10"), WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10")], date: Date(), index: currentWorkoutIndex)
+         workouts.append(workout)
+         currentWorkoutIndex += 1
+         let workout2 = Workout.init(workoutName: "Bench Press", set: [WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10")], date: Date(), index: currentWorkoutIndex)
+         workouts.append(workout2)
+
+         self.oldWorkoutsDictionary.updateValue(workouts, forKey: workout.workoutName)
+         
+         workouts.removeAll()
+         
+         currentWorkoutIndex += 1
+         let workout3 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10"), WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10"), WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10"), WorkoutSet.init(workoutName: "Curl", weight: "25", reps: "10"), WorkoutSet.init(workoutName: "Curl", weight: "20", reps: "10")], date: Date(), index: currentWorkoutIndex)
+         workouts.insert(workout3, at: 0)
+         currentWorkoutIndex += 1
+         let workout4 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10")], date: Date(), index: currentWorkoutIndex)
+         workouts.insert(workout4, at: 0)
+         currentWorkoutIndex += 1
+         let workout5 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10")], date: Date(), index: currentWorkoutIndex)
+         workouts.insert(workout5, at: 0)
+         currentWorkoutIndex += 1
+         let workout6 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10")], date: Date(), index: currentWorkoutIndex)
+         workouts.insert(workout6, at: 0)
+         currentWorkoutIndex += 1
+         let workout7 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10")], date: Date(), index: currentWorkoutIndex)
+         workouts.insert(workout7, at: 0)
+
+         self.oldWorkoutsDictionary.updateValue(workouts, forKey: workout4.workoutName)
+    }
+}
+    
+// MARK: Picker View Delegate functions
+extension ViewController: UIPickerViewDataSource, UIPickerViewDelegate {
 
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -168,7 +209,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         currentWorkoutView.setWorkoutWithName(workout: workoutName)
         workoutTextField.text = workoutName
-
+        currentWorkoutName = workoutName
+        
+        saveOldWorkouts(key: savedOldWorkoutsKey)
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
@@ -181,9 +224,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
         return title
     }
-    
-    // MARK: Table Delegate functions
-    // number of rows in table view
+}
+
+// MARK: Table Delegate functions
+extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.oldWorkoutArray.count
     }
@@ -217,7 +261,32 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         print("You tapped cell number \(indexPath.row).")
     }
     
-    // MARK: Text Feild Delegate functions
+    func tableView(_ tableView: UITableView,
+                       trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        // Remove action
+        let remove = UIContextualAction(style: .destructive,
+                                       title: "Remove") { [weak self] (action, view, completionHandler) in
+                                        self?.handleRemoveWorkout(index: indexPath.row)
+                                        completionHandler(true)
+        }
+        remove.backgroundColor = .systemRed
+
+        // edit action
+        let edit = UIContextualAction(style: .normal,
+                                       title: "Edit") { [weak self] (action, view, completionHandler) in
+            self?.handleEditWorkout(index: indexPath.row)
+                                        completionHandler(true)
+        }
+        edit.backgroundColor = .systemGreen
+
+        let configuration = UISwipeActionsConfiguration(actions: [remove, edit])
+
+        return configuration
+    }
+}
+
+// MARK: Text Feild Delegate functions
+extension ViewController: UITextFieldDelegate {
     func textFieldDidBeginEditing(_ textField: UITextField) {
         print("textFieldDidBeginEditing")
     }
@@ -269,38 +338,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         return true
         
-    }
-    
-    func makeFakeWorkOutData() {
-         var workouts = [Workout].init()
-         
-         let workout = Workout.init(workoutName: "Bench Press", set: [WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10"), WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10"), WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10"), WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10")], date: Date(), index: currentWorkoutIndex)
-         workouts.append(workout)
-         currentWorkoutIndex += 1
-         let workout2 = Workout.init(workoutName: "Bench Press", set: [WorkoutSet.init(workoutName: "Bench Press", weight: "185", reps: "10")], date: Date(), index: currentWorkoutIndex)
-         workouts.append(workout2)
-
-         self.oldWorkoutsDictionary.updateValue(workouts, forKey: workout.workoutName)
-         
-         workouts.removeAll()
-         
-         currentWorkoutIndex += 1
-         let workout3 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10"), WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10"), WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10"), WorkoutSet.init(workoutName: "Curl", weight: "25", reps: "10"), WorkoutSet.init(workoutName: "Curl", weight: "20", reps: "10")], date: Date(), index: currentWorkoutIndex)
-         workouts.insert(workout3, at: 0)
-         currentWorkoutIndex += 1
-         let workout4 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10")], date: Date(), index: currentWorkoutIndex)
-         workouts.insert(workout4, at: 0)
-         currentWorkoutIndex += 1
-         let workout5 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10")], date: Date(), index: currentWorkoutIndex)
-         workouts.insert(workout5, at: 0)
-         currentWorkoutIndex += 1
-         let workout6 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10")], date: Date(), index: currentWorkoutIndex)
-         workouts.insert(workout6, at: 0)
-         currentWorkoutIndex += 1
-         let workout7 = Workout.init(workoutName: "Curl", set: [WorkoutSet.init(workoutName: "Curl", weight: "35", reps: "10")], date: Date(), index: currentWorkoutIndex)
-         workouts.insert(workout7, at: 0)
-
-         self.oldWorkoutsDictionary.updateValue(workouts, forKey: workout4.workoutName)
     }
 }
 
