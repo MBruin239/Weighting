@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-struct Workout: Codable{
+struct Workout: Codable {
     let workoutName: String
     var set: [WorkoutSet]
     let date: Date
@@ -19,4 +19,8 @@ struct WorkoutSet: Codable {
     let workoutName: String
     let weight: String
     let reps: String
+    
+    var weightInKilograms: String {
+        return String(Double(weight) ?? 0 * 0.453592)
+    }
 }

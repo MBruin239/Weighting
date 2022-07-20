@@ -7,16 +7,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9087DADC-5CDF-46B8-A159-20CBE1B9262D"
+            uuid = "9CD6AD1F-F34A-4726-A9DE-A675A507273B"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Weighting/ViewController.swift"
+            filePath = "Weighting/Navigation/MainCoordinator.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "169"
-            endingLineNumber = "169"
-            landmarkName = "pickerView(_:didSelectRow:inComponent:)"
+            startingLineNumber = "25"
+            endingLineNumber = "25"
+            landmarkName = "start()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
