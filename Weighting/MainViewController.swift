@@ -42,11 +42,12 @@ class MainViewController: UIViewController {
         self.registerTableViewCells()
         
         workoutNames = workoutsManager?.getWorkoutNames()
-        if let workoutName = workoutNames?[0]{
-            currentWorkoutName = workoutName
-            self.currentWorkoutView.setWorkout(workout: Workout.init(workoutName: workoutName, set: [], date: Date(), index: currentWorkoutIndex))
-            workoutsManager?.setWorkoutName(name: workoutName)
-        }
+        guard workoutNames!.count >= 1 else { return }
+        
+        let workoutName = workoutNames?[0]
+        currentWorkoutName = workoutName
+        self.currentWorkoutView.setWorkout(workout: Workout.init(workoutName: workoutName!, set: [], date: Date(), index: currentWorkoutIndex))
+        workoutsManager?.setWorkoutName(name: workoutName!)
 
     }
     
@@ -142,13 +143,17 @@ extension MainViewController: UIPickerViewDelegate {
 // MARK: Table Delegate functions
 extension MainViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let oldWorkoutArray = workoutsManager?.getOldWorkoutsArray(workoutName: currentWorkoutName!) else { return 0 }
+        guard let currentWorkoutName = currentWorkoutName else { return 0 }
         
-        return oldWorkoutArray.count
+        let oldWorkoutArray = workoutsManager?.getOldWorkoutsArray(workoutName: currentWorkoutName)
+        
+        return oldWorkoutArray!.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let oldWorkoutArray = workoutsManager?.getOldWorkoutsArray(workoutName: currentWorkoutName!) else { return 0.0 }
+        guard let currentWorkoutName = currentWorkoutName else { return 0.0 }
+        guard let oldWorkoutArray = workoutsManager?.getOldWorkoutsArray(workoutName: currentWorkoutName) else { return 0.0 }
+        
         let workout = oldWorkoutArray[indexPath.row]
         
         let height = workout.set.count == 1 ? CGFloat(70 + ((workout.set.count-1) * 21)) : CGFloat(70 + ((workout.set.count-2) * 21))
@@ -202,7 +207,8 @@ extension MainViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         print("You tapped cell number \(indexPath.row).")
-        guard let workout = workoutsManager?.getOldWorkoutsArray(workoutName: currentWorkoutName!)[indexPath.row] else { return }
+        guard let currentWorkoutName = currentWorkoutName else { return }
+        guard let workout = workoutsManager?.getOldWorkoutsArray(workoutName: currentWorkoutName)[indexPath.row] else { return }
 
         coordinator?.displayInfo(of: workout, action: { text in
             print("text = \(text)")
@@ -278,6 +284,10 @@ extension MainViewController: WorkoutsManagerDelegate {
     
     func updateCurrentWorkout(workout: Workout){
         currentWorkoutView.setWorkout(workout: workout)
+    }
+    
+    func workoutNamesDidUpdate(workoutNames: [String]){
+        self.workoutNames = workoutNames
     }
     
     func movePickerViewToRow(index: Int){

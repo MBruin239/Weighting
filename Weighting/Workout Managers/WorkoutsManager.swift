@@ -12,6 +12,7 @@ protocol WorkoutsManagerDelegate {
     func refreshViews()
     func movePickerViewToRow(index: Int)
     func updateCurrentWorkout(workout: Workout)
+    func workoutNamesDidUpdate(workoutNames: [String])
 }
 
 class WorkoutsManager {
@@ -45,7 +46,8 @@ class WorkoutsManager {
         currentWorkoutsManager.addWorkoutSet(workoutName: newName, weight: weight, reps: reps)
         
         if !workoutNames.contains(newName){
-            oldWorkoutsManager.workoutNames.append(newName)
+            oldWorkoutsManager.addWorkoutName(name: newName)
+            let workoutNames = getWorkoutNames()
             delegate?.movePickerViewToRow(index: workoutNames.count-1)
         }
     }
@@ -84,6 +86,10 @@ extension WorkoutsManager: OldWorkoutsDelegate {
     func oldWorkoutsOnWorkoutEdited(workout: Workout) {
         print(workout)
         delegate?.onWorkoutEdited(workout: workout)
+    }
+    
+    func workoutNamesDidUpdate(workoutNames: [String]){
+        delegate?.workoutNamesDidUpdate(workoutNames: workoutNames)
     }
     
     func oldWorkoutsRefreshViews() {

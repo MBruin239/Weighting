@@ -9,6 +9,7 @@ import Foundation
 
 protocol OldWorkoutsDelegate {
     func oldWorkoutsOnWorkoutEdited(workout: Workout)
+    func workoutNamesDidUpdate(workoutNames: [String])
     func oldWorkoutsRefreshViews()
 }
 
@@ -49,6 +50,11 @@ class OldWorkoutsManager {
         workoutNames = [String](oldWorkoutsDictionary.keys).sorted()
         
         return workoutNames
+    }
+    
+    func addWorkoutName(name: String) {
+        oldWorkoutsDictionary.updateValue([Workout](), forKey: name)
+        delegate?.workoutNamesDidUpdate(workoutNames: getWorkoutNames())
     }
     
     func setOldWorkoutsCurrentWorkoutNameTo(name: String) {

@@ -19,9 +19,10 @@ class CurrentWorkoutsManager {
     var delegate: CurrentWorkoutDelegate?
     
     func addWorkoutSet(workoutName: String, weight: String, reps: String){
+        setWorkoutWithName(workout: workoutName)
         let newSet = WorkoutSet.init(workoutName: workoutName, weight: weight, reps: reps)
 
-        currentWorkout?.set.append(newSet)
+        currentWorkout!.set.append(newSet)
         
         currentWorkoutsDictionary.updateValue(currentWorkout!, forKey: newSet.workoutName)
         
