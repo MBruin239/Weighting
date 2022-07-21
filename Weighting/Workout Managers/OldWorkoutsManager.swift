@@ -68,7 +68,7 @@ class OldWorkoutsManager {
     func updateOldWorkoutsDictionaryWith(dictionary: [String:Workout]) {
         for (key, val) in dictionary {
             var array = oldWorkoutsDictionary[key] ?? [Workout]()
-            array.append(val)
+            array.insert(val, at: 0)
             oldWorkoutsDictionary.updateValue(array, forKey: key)
         }
         saveOldWorkouts(key: savedOldWorkoutsKey)

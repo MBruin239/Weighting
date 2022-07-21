@@ -88,8 +88,6 @@ class CurrentWorkoutsManager {
             return
         }
         setWorkout(workout: workout)
-        
-        delegate?.updateCurrentWorkout(workout: workout)
     }
     
     func handleRemoveSet(index: Int) {
