@@ -12,8 +12,6 @@ class MainViewController: UIViewController {
     weak var coordinator: MainCoordinator?
 
     let cellReuseIdentifier = "cell"
-
-    public var currentWorkoutIndex = 0
     
     @IBOutlet weak var workoutTextField: UITextField! { didSet { workoutTextField.delegate = self } }
     @IBOutlet weak var repsTextField: UITextField! { didSet { repsTextField.delegate = self } }
@@ -28,7 +26,9 @@ class MainViewController: UIViewController {
     
     weak var workoutsManager: WorkoutsManager?
 
-    var workoutNames: [String]?
+    var workoutNames: [String]? {
+        get{workoutsManager?.getWorkoutNames()}
+    }
     var currentWorkoutName: String?
 
     // MARK: View Controller functions
@@ -41,12 +41,10 @@ class MainViewController: UIViewController {
 
         self.registerTableViewCells()
         
-        workoutNames = workoutsManager?.getWorkoutNames()
         guard workoutNames!.count >= 1 else { return }
         
         let workoutName = workoutNames?[0]
         currentWorkoutName = workoutName
-        self.currentWorkoutView.setWorkout(workout: Workout.init(workoutName: workoutName!, set: [], date: Date(), index: currentWorkoutIndex))
         workoutsManager?.setWorkoutName(name: workoutName!)
 
     }
@@ -133,9 +131,7 @@ extension MainViewController: UIPickerViewDelegate {
         guard let workoutNames = workoutNames else { return }
 
         let workoutName = workoutNames[row]
-        
-        currentWorkoutName = workoutName
-        
+                
         workoutsManager?.setWorkoutName(name: workoutName)
     }
 }
@@ -237,7 +233,7 @@ extension MainViewController: UITextFieldDelegate {
         print("TextField did end editing method called\(textField.text!)")
 
         if textField == self.workoutTextField {
-            currentWorkoutView.setWorkout(workout: Workout.init(workoutName: textField.text! as String, set: [], date: Date(), index: currentWorkoutIndex))
+            workoutsManager?.setWorkoutName(name: textField.text!)
         } else if textField == self.repsTextField {
             
         } else if textField == self.weightTextField {
@@ -284,10 +280,11 @@ extension MainViewController: WorkoutsManagerDelegate {
     
     func updateCurrentWorkout(workout: Workout){
         currentWorkoutView.setWorkout(workout: workout)
+        currentWorkoutName = workout.workoutName
     }
     
     func workoutNamesDidUpdate(workoutNames: [String]){
-        self.workoutNames = workoutNames
+        //self.workoutNames = workoutNames
     }
     
     func movePickerViewToRow(index: Int){

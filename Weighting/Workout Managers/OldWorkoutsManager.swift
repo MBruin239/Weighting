@@ -17,7 +17,6 @@ class OldWorkoutsManager {
     var oldWorkoutsDictionary = [String:[Workout]]()
     var workoutNames: [String] = []
     var currentWorkoutName: String?
-    var currentWorkoutIndex = 0
     
     var delegate:OldWorkoutsDelegate?
 

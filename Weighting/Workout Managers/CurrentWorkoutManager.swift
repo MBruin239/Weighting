@@ -13,22 +13,60 @@ protocol CurrentWorkoutDelegate {
 }
 
 class CurrentWorkoutsManager {
+    var currentWorkoutIndex: Int {
+        get{
+            return userDefaults.integer(forKey: "currentWorkoutIndex")
+        }
+        set {
+            userDefaults.set(newValue, forKey:"currentWorkoutIndex")
+            userDefaults.synchronize()
+        }
+    }
+    
     var currentWorkoutsDictionary = [String:Workout]()
     var currentWorkout: Workout?
+    var newWorkoutNames = [String]()
     
     var delegate: CurrentWorkoutDelegate?
     
     func addWorkoutSet(workoutName: String, weight: String, reps: String){
-        setWorkoutWithName(workout: workoutName)
-        let newSet = WorkoutSet.init(workoutName: workoutName, weight: weight, reps: reps)
+        setWorkoutWithName(workoutName: workoutName)
+        if var currentWorkout = currentWorkout {
+            let newSet = WorkoutSet.init(workoutName: workoutName, weight: weight, reps: reps)
 
-        currentWorkout!.set.append(newSet)
-        
-        currentWorkoutsDictionary.updateValue(currentWorkout!, forKey: newSet.workoutName)
-        
-        delegate?.updateCurrentWorkout(workout: currentWorkout!)
+            currentWorkout.set.append(newSet)
+            
+            addWorkoutToCurrentWorkoutDictionary(workout: currentWorkout)
+        }
         
         delegate?.currentWorkoutRefreshViews()
+    }
+    
+    private func addWorkoutToCurrentWorkoutDictionary(workout: Workout){
+        if !checkCurrentWorkoutsDictionaryForWorkout(workoutName: workout.workoutName){
+            currentWorkoutIndex += 1
+        }
+
+        currentWorkoutsDictionary.updateValue(workout, forKey: workout.workoutName)
+        
+        delegate?.updateCurrentWorkout(workout: workout)
+    }
+    
+    func checkCurrentWorkoutsDictionaryForWorkout(workoutName: String) -> Bool {
+        let currentWorkoutNames = [String](currentWorkoutsDictionary.keys)
+        for name in currentWorkoutNames {
+            if name == workoutName {
+                return true
+            }
+        }
+        return false
+    }
+    
+    func getCurrentWorkoutNames() -> [String] {
+        let workoutNames = [String](currentWorkoutsDictionary.keys).sorted()
+        let combined = Array(Set(workoutNames + newWorkoutNames)).sorted()
+
+        return combined
     }
     
     func resetCurrentWorkout() {
@@ -43,9 +81,10 @@ class CurrentWorkoutsManager {
         delegate?.currentWorkoutRefreshViews()
     }
     
-    func setWorkoutWithName(workout: String){
-        guard let workout = currentWorkoutsDictionary[workout] else {
-            setWorkout(workout: Workout.init(workoutName: workout, set: [], date: Date(), index: 0))
+    func setWorkoutWithName(workoutName: String){
+        guard let workout = currentWorkoutsDictionary[workoutName] else {
+            newWorkoutNames.append(workoutName)
+            setWorkout(workout: Workout.init(workoutName: workoutName, set: [], date: Date(), index: currentWorkoutIndex))
             return
         }
         setWorkout(workout: workout)

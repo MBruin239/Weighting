@@ -28,7 +28,7 @@ class CurrentWorkoutView: UIView {
         currentWorkout = workout
         self.workoutTitleLabel.text = workout.workoutName
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd/MM/YY"
+        dateFormatter.dateFormat = "MM/dd/YY"
         self.date.text = dateFormatter.string(from: workout.date)
         
         self.setsTableView.reloadData()

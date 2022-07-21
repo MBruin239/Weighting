@@ -61,7 +61,11 @@ class WorkoutsManager {
     }
     
     func getWorkoutNames() -> [String] {
-        return oldWorkoutsManager.getWorkoutNames()
+        let currentWorkoutNames = currentWorkoutsManager.getCurrentWorkoutNames()
+        let oldWorkoutNames = oldWorkoutsManager.getWorkoutNames()
+        let combined = Array(Set(currentWorkoutNames + oldWorkoutNames)).sorted()
+
+        return combined
     }
     
     func getOldWorkoutsArray(workoutName: String) -> [Workout] {
@@ -70,7 +74,7 @@ class WorkoutsManager {
     
     func setWorkoutName(name: String) {
         oldWorkoutsManager.setOldWorkoutsCurrentWorkoutNameTo(name: name)
-        currentWorkoutsManager.setWorkoutWithName(workout: name)
+        currentWorkoutsManager.setWorkoutWithName(workoutName: name)
     }
     
     func removeWorkout(index: Int) {

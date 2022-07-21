@@ -29,7 +29,7 @@ class WorkoutTableViewCell: UITableViewCell {
         cellWorkout = workout
         self.workoutTitleLabel.text = workout.workoutName
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "YY/MM/dd"
+        dateFormatter.dateFormat = "MM/dd/YY"
         self.date.text = dateFormatter.string(from: workout.date)
         
         var index = 0

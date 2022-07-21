@@ -111,8 +111,9 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mzm-K6-jlr">
                                                 <rect key="frame" x="8" y="8" width="182" height="21"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="width" constant="182" id="iQU-AF-Yew"/>
+                                                    <constraint firstAttribute="width" priority="750" constant="182" id="iQU-AF-Yew"/>
                                                     <constraint firstAttribute="height" constant="21" id="lid-Ev-iVR"/>
+                                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="182" id="yNb-va-nyq"/>
                                                 </constraints>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                                 <nil key="textColor"/>
@@ -121,7 +122,7 @@
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QMJ-yP-gSf">
                                                 <rect key="frame" x="8" y="37" width="95" height="21"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="width" constant="95" id="6BD-Me-BUF"/>
+                                                    <constraint firstAttribute="width" priority="750" constant="95" id="6BD-Me-BUF"/>
                                                     <constraint firstAttribute="height" constant="21" id="fju-Il-Ceb"/>
                                                 </constraints>
                                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -146,7 +147,6 @@
                                             <constraint firstAttribute="height" priority="750" constant="109" id="M2z-fp-zZy"/>
                                             <constraint firstAttribute="trailing" secondItem="HJQ-8s-vXx" secondAttribute="trailing" id="T4Z-9Q-kHF"/>
                                             <constraint firstItem="Mzm-K6-jlr" firstAttribute="leading" secondItem="Koj-fq-gfH" secondAttribute="leading" constant="8" id="TMB-2m-8Uz"/>
-                                            <constraint firstItem="HJQ-8s-vXx" firstAttribute="leading" relation="lessThanOrEqual" secondItem="Mzm-K6-jlr" secondAttribute="trailing" priority="750" constant="23" id="svk-AM-TRw"/>
                                             <constraint firstItem="QMJ-yP-gSf" firstAttribute="top" secondItem="Mzm-K6-jlr" secondAttribute="bottom" constant="8" symbolic="YES" id="tRV-FF-U7H"/>
                                             <constraint firstAttribute="bottom" secondItem="HJQ-8s-vXx" secondAttribute="bottom" constant="-1" id="tzV-iG-SGN"/>
                                         </constraints>
@@ -159,7 +159,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Eok-gE-CFE">
                                         <rect key="frame" x="141" y="117" width="132" height="30"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="132" id="78a-es-SWO"/>
+                                            <constraint firstAttribute="width" priority="750" constant="132" id="78a-es-SWO"/>
                                             <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="IJG-uT-4ED"/>
                                             <constraint firstAttribute="height" constant="30" id="lqX-UQ-bhg"/>
                                         </constraints>
